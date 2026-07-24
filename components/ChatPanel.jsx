@@ -27,8 +27,8 @@ function Message({ role, content }) {
   );
 }
 
-export default function ChatPanel({ transcript }) {
-  const { messages, send, loading } = useEpisodeChat(transcript);
+export default function ChatPanel({ transcript, threadId }) {
+  const { messages, send, loading } = useEpisodeChat(transcript, threadId);
   const [value, setValue] = useState("");
   const ready = Boolean(transcript);
 

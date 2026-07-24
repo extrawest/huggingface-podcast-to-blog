@@ -2,18 +2,17 @@ import { useState } from "react";
 import { App } from "antd";
 import * as api from "@/lib/api";
 
-export function useEpisodeChat(transcript) {
+export function useEpisodeChat(transcript, threadId) {
   const { message } = App.useApp();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
 
   async function send(text) {
-    const next = [...messages, { role: "user", content: text }];
-    setMessages(next);
+    setMessages((prev) => [...prev, { role: "user", content: text }]);
     setLoading(true);
     try {
-      const reply = await api.chat(transcript, next);
-      setMessages([...next, { role: "assistant", content: reply }]);
+      const reply = await api.chat(threadId, transcript, text);
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch (err) {
       message.error(`Chat failed: ${err.message}`);
     } finally {

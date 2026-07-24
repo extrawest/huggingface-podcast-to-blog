@@ -24,7 +24,7 @@ export default function EpisodeDetails({ episode, onBack }) {
           <ResultView {...pipeline} />
         </Col>
         <Col xs={24} lg={9}>
-          <ChatPanel transcript={pipeline.transcript} />
+          <ChatPanel transcript={pipeline.transcript} threadId={String(episode.id)} />
         </Col>
       </Row>
     </>

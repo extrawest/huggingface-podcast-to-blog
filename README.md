@@ -4,28 +4,34 @@ Search a podcast, pick an episode, and turn it into a blog post: a transcript, a
 summary, a generated title, a cover image, a spoken version of the summary, an
 English↔French toggle, and a Q&A chat grounded in the original transcript.
 
-The client orchestrates the pipeline and renders each section as its result lands —
-the summary shows before the audio and image finish. Each API route makes exactly one
-model call.
+A **LangGraph** pipeline runs the whole episode server-side — transcribe → summarize →
+fan out to title, cover image and spoken summary — and **streams** each result back as
+its node finishes, so the summary shows before the image and audio. Retries with
+backoff, node caching, conditional skips, and chat history are handled by the graph
+rather than hand-rolled.
 
 ## What it does
 
 1. **Search** a podcast by term (Podcast Index) and pick an episode.
 2. **Transcribe** the episode audio (Whisper).
-3. **Summarize** the transcript (BART) — rendered immediately.
+3. **Summarize** the transcript (BART) — streamed to the UI immediately.
 4. In parallel from the summary: generate a **title** (LLM), a **cover image**
-   (FLUX), and a **spoken summary** (ElevenLabs).
-5. **Translate** the summary to French on demand (cached, then toggles EN/FR).
-6. **Chat** about the episode — answers are grounded only in the transcript.
+   (FLUX), and a **spoken summary** (ElevenLabs). If the summary comes back empty, a
+   conditional edge skips this fan-out entirely.
+5. **Translate** the summary to French on demand (server-cached, then toggles EN/FR).
+6. **Chat** about the episode — grounded only in the transcript, with history kept
+   server-side by the graph's checkpointer.
 
 ## Stack
 
 - **Next.js 16** (App Router), JavaScript + JSX. The API routes are the backend.
 - **Ant Design v6** for the UI, themed through `ConfigProvider` tokens.
+- **LangGraph** (`@langchain/langgraph`) orchestrates the pipeline, chat, and translate
+  graphs — retries, caching, conditional edges, streaming, and a checkpointer.
 - **Hugging Face Inference Providers** (`@huggingface/inference`) for transcription,
   summarization, and image generation.
 - **LangChain** (`@langchain/openai` pointed at the HF OpenAI-compatible router) for the
-  title, translation, and chat steps.
+  title, translation, and chat model calls the graph nodes wrap.
 - **ElevenLabs** for text-to-speech.
 - **Podcast Index** REST API for search.
 - Stateless: no database, no storage bucket. Audio and image come back as base64 data URLs.
