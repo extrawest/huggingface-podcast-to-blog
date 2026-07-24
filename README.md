@@ -77,3 +77,10 @@ overrides `CHAT_MODEL`, `ASR_MODEL`, `SUMMARY_MODEL`, `IMAGE_MODEL`.
   pipeline. ElevenLabs free tier can only use premade voices via the API, not library voices.
 - **Translation** is done by the chat LLM (high quality, one call) rather than a dedicated
   MT model, so the French is generated, not deterministic.
+
+  ## Demo:
+
+https://github.com/user-attachments/assets/c6fb7729-a262-4162-a4f5-94836b0ed4e2
+
+
+
